@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    restart: always
+    hostname: 'git.tofisanext.com'
+    container_name: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+             external_url 'https://git.tofisanext.com/'
+             gitlab_rails['initial_root_password'] = ENV['FinalFinal']
+             gitlab_rails['gitlab_shell_ssh_port'] = 2222
+             nginx['ssl_certificate'] = '/etc/gitlab/ssl/fullchain.pem'
+             nginx['ssl_certificate_key'] = '/etc/gitlab/ssl/privkey.pem'
+             gitlab_rails['backup_path'] = '/var/opt/gitlab/backups'
+             gitlab_rails['backup_keep_time'] = 604800
+             gitlab_rails['backup_enable'] = true
+             gitlab_rails['backup_path'] = "/var/opt/gitlab/backups"
+    ports:
+      - '80:80'
+      - '443:443'
+      - '2222:22'
+    volumes:
+      - ./config:/etc/gitlab:z
+      - ./logs:/var/log/gitlab:z
+      - ./data:/var/opt/gitlab:z
+      - ./ssl/:/etc/gitlab/ssl/:z
+      - ./backup:/var/opt/gitlab/backups:z
